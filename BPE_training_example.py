@@ -18,16 +18,16 @@ vocab_idx = {v:k for k, v in vocab_b.items()} # create vocab, but index:byte
 pre_tok = corpus.split(' ') # pre-tokenization based on whitespace
 print(pre_tok)
 
-tok_word = dict() 
+pre_tok_count = dict() 
 for s in pre_tok: # counting tokens and saving in dict
-    tok_word[s] = tok_word.get(s,0) + 1
-print(f'token count: {tok_word}')
+    pre_tok_count[s] = pre_tok_count.get(s,0) + 1
+print(f'token count: {pre_tok_count}')
 
-tok_tuple = tok_word.copy()
-for k in list(tok_tuple.keys()): # turning tokens into tuples to separate letters
-    tok_tuple[tuple(k)] = tok_tuple.pop(k)
+pre_tok_tuple_count = pre_tok_count.copy()
+for k in list(pre_tok_tuple_count.keys()): # turning tokens into tuples to separate letters
+    pre_tok_tuple_count[tuple(k)] = pre_tok_tuple_count.pop(k)
 
-print(f'token count after turning tokens into tuples: {tok_tuple}')
+print(f'token count after turning tokens into tuples: {pre_tok_tuple_count}')
 
 
 # ==========================================
@@ -62,9 +62,11 @@ gradually merge more and introduce new tokens
 
 need to keep track of the new tokens so they can be added to the vocab in the end
 """
+
+# ----- COUNT PAIRS -----
 pair_set = set()
 pair_list = list()
-for i in list(tok_tuple.keys()): # pair up the letters in each word
+for i in list(pre_tok_tuple_count.keys()): # pair up the letters in each word
     for k in range(len(i)-1):
         pair = i[k] + i[k+1]
         if pair not in pair_set:
@@ -76,15 +78,31 @@ print(f'pair list: {pair_list}')
 pair_count = {pair:0 for pair in pair_list}
 
 for pair in pair_count.keys():
-    for tok in tok_word.keys():
+    for tok in pre_tok_count.keys():
         if pair in tok:
-            pair_count[pair] += tok_word[tok]
+            pair_count[pair] += pre_tok_count[tok]
 print('=============================')
 print('=============================')
 print(f'>>>> PAIR COUNT: {pair_count}')
 
+# ----- SELECT PAIR WITH HIGHEST COUNT -----
+max_count = pair_count[max(pair_count, key=pair_count.get)] # determine what the highest count among all pairs is
+maxc_tok = [k for k in pair_count.keys() if pair_count[k] == max_count] # create list with all pairs that have this highest count
+gr_pair = max(maxc_tok) # select lexicographically greatest pair
+print(f'greatest pair: {gr_pair}')
 
-"""
-next up, need to implement:
-'We would then merge the pre-tokens so that we end up with {(l,o,w): 5, (l,o,w,e,r): 2, (w,i,d,e,st): 3, (n,e,w,e,st): 6}'
-"""
+# ----- MERGE PRE-TOKENS -----
+# for word in list(pre_tok_tuple_count.keys()):
+#     print(f'word = {word}')
+#     for i,l in enumerate(word):
+#         print(f'i = {i}, l = {l}')
+#         if gr_pair == k:
+#             print(f'{gr_pair} is in {word}')
+
+replace_toks = {}
+for word in list(pre_tok_tuple_count.keys()):
+    for i in range(len(word)-1):
+        if gr_pair == word[i] + word[i+1]:
+            
+
+            
