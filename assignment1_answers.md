@@ -64,3 +64,5 @@ for item in my_list:
     print(item)            # 1, 2, 3 (actual values)
 ```
 Same concept: representation vs. actual elements.
+
+
