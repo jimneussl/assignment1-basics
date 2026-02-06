@@ -27,36 +27,43 @@ for token in corpus.split(' '): # pre-tokenization based on whitespace
 # ----- COUNT PAIRS -----
 def get_pair_counts(vocab):
     counts = {}
-    for word_tuple, freq in vocab.items():
-        for i in range(len(word_tuple) - 1):
-            pair = (word_tuple[i], word_tuple[i+1])
+    for word, freq in vocab.items():
+        for i in range(len(word) - 1):
+            pair = (word[i], word[i+1])
             counts[pair] = counts.get(pair, 0) + freq
     return counts
 
-# ----- SELECT PAIR WITH HIGHEST COUNT -----
-best_pair = max(pair_counts, key=lambda p: (pair_counts[p], p))
-
 # ----- MERGE PRE-TOKENS -----
-def apply_merge(word_tuple, pair):
+def apply_merge(word, pair):
     i = 0
     result = []
-    while i < len(word_tuple):
-        if i == len(word_tuple) - 1:
-            result.append(word_tuple[i])
+    while i < len(word):
+        if i == len(word) - 1:
+            result.append(word[i])
             i += 1
-        elif word_tuple[i] == pair[0] and word_tuple[i+1] == pair[1]:
+        elif word[i] == pair[0] and word[i+1] == pair[1]:
             result.append(pair[0] + pair[1])
             i += 2
         else:
-            result.append(word_tuple[i])
+            result.append(word[i])
             i += 1
     return tuple(result)
 
-new_dict = {}
-for word_tuple, count in word_freq.items():
-    new_word = apply_merge(word_tuple, best_pair)
-    new_dict[new_word] = count
-word_freq = new_dict
+# ----- LOOP THOUGH ALL STEPS NUM_MERGES TIMES -----
+num_merges = 10
 
+for i in range(num_merges):
+    # step 1: count pairs
+    pair_counts = get_pair_counts(word_freq)
 
-print(f'new dict: {word_freq}')
+    # step 2: select best pair
+    best_pair = max(pair_counts, key=lambda p: (pair_counts[p], p))
+
+    # step 3: merge
+    new_dict = {}
+    for word, count in word_freq.items():
+        new_word = apply_merge(word, best_pair)
+        new_dict[new_word] = count
+    word_freq = new_dict
+    
+    print(f'vocab after round {i+1} of merges: {word_freq}')
