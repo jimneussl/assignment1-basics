@@ -50,7 +50,8 @@ def apply_merge(word, pair):
     return tuple(result)
 
 # ----- LOOP THOUGH ALL STEPS NUM_MERGES TIMES -----
-num_merges = 10
+num_merges = 6 # how often we want to merge
+next_idx = len(token_to_idx) # will be 257 initially; so we can give each new pair a new index
 
 for i in range(num_merges):
     # step 1: count pairs
@@ -65,5 +66,12 @@ for i in range(num_merges):
         new_word = apply_merge(word, best_pair)
         new_dict[new_word] = count
     word_freq = new_dict
-    
-    print(f'vocab after round {i+1} of merges: {word_freq}')
+
+    # step 4: update vocab
+    token_to_idx[best_pair[0] + best_pair[1]] = next_idx
+    next_idx += 1
+
+# update idx_to_token vocab
+idx_to_token = {v:k for k, v in token_to_idx.items()}
+
+print([idx:tok for idx, tok in idx_to_token.items() for idx in range(257,262)])
